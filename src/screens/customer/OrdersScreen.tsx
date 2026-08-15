@@ -6,10 +6,11 @@ import { colors, radius, shadow, spacing, typography } from '../../theme/tokens'
 
 const statusLabels: Record<Order['status'], string> = { payment_pending: 'Payment pending', confirmed: 'Confirmed', packing: 'Being packed', out_for_delivery: 'Out for delivery', delivered: 'Delivered', cancelled: 'Cancelled' };
 
-export function OrdersScreen({ wide }: { wide: boolean }) {
+export function OrdersScreen({ wide, recentOrder }: { wide: boolean; recentOrder?: Order }) {
+  const orders = recentOrder ? [recentOrder, ...demoOrders] : demoOrders;
   return <ScreenFrame style={styles.page}>
     <SectionHeading eyebrow="YOUR UGADI ORDERS" title="From our hands to yours" copy="Follow every active delivery and revisit your past seasonal orders." />
-    {demoOrders.map((order, index) => <View style={[styles.order, !wide && styles.orderMobile]} key={order.id}>
+    {orders.map((order, index) => <View style={[styles.order, !wide && styles.orderMobile]} key={order.id}>
       <View style={styles.orderDetails}>
         <View style={styles.orderTop}><Text style={styles.orderId}>{order.id}</Text><Chip label={statusLabels[order.status]} tone={order.status === 'delivered' ? 'neutral' : 'green'} /></View>
         <Text style={styles.orderTitle}>{order.lineCount} premium mango box</Text>
@@ -18,8 +19,8 @@ export function OrdersScreen({ wide }: { wide: boolean }) {
           {['Confirmed', 'Carefully packed', 'Out for delivery', 'Delivered'].map((step, stepIndex) => { const completed = order.status === 'delivered' || stepIndex <= 2; return <View style={styles.timelineStep} key={step}><View style={[styles.timelineDot, completed && styles.timelineDotDone]} /><Text style={[styles.timelineText, completed && styles.timelineTextDone]}>{step}</Text></View>; })}
         </View>
       </View>
-      <View style={[styles.tracking, index > 0 && styles.trackingPast]}>
-        {order.eta ? <><Text style={styles.trackingEyebrow}>LIVE DELIVERY</Text><Text style={styles.eta}>{order.eta}</Text><Text style={styles.trackingCopy}>Estimated arrival today</Text><View style={styles.map}><View style={styles.mapStreetA} /><View style={styles.mapStreetB} /><View style={styles.originPin}><Text style={styles.pinText}>●</Text></View><View style={styles.homePin}><Text style={styles.pinText}>◆</Text></View><View style={styles.routeDots}><Text style={styles.routeDotsText}>· · · · · · ·</Text></View></View><Text style={styles.window}>{order.deliveryWindow}</Text></> : <><Text style={styles.trackingEyebrow}>DELIVERED</Text><Text style={styles.pastIcon}>✓</Text><Text style={styles.trackingCopy}>Delivered with care</Text><Text style={styles.window}>{order.deliveryWindow}</Text></>}
+      <View style={[styles.tracking, order.status === 'delivered' && styles.trackingPast]}>
+        {order.eta ? <><Text style={styles.trackingEyebrow}>LIVE DELIVERY</Text><Text style={styles.eta}>{order.eta}</Text><Text style={styles.trackingCopy}>Estimated arrival today</Text><View style={styles.map}><View style={styles.mapStreetA} /><View style={styles.mapStreetB} /><View style={styles.originPin}><Text style={styles.pinText}>●</Text></View><View style={styles.homePin}><Text style={styles.pinText}>◆</Text></View><View style={styles.routeDots}><Text style={styles.routeDotsText}>· · · · · · ·</Text></View></View><Text style={styles.window}>{order.deliveryWindow}</Text></> : order.status === 'delivered' ? <><Text style={styles.trackingEyebrow}>DELIVERED</Text><Text style={styles.pastIcon}>✓</Text><Text style={styles.trackingCopy}>Delivered with care</Text><Text style={styles.window}>{order.deliveryWindow}</Text></> : <><Text style={styles.trackingEyebrow}>DELIVERY SCHEDULED</Text><Text style={styles.scheduledIcon}>⌖</Text><Text style={styles.scheduledTitle}>Tomorrow</Text><Text style={styles.trackingCopy}>Live tracking appears after dispatch</Text><Text style={styles.window}>{order.deliveryWindow}</Text></>}
       </View>
     </View>)}
   </ScreenFrame>;
@@ -55,4 +56,6 @@ const styles = StyleSheet.create({
   routeDotsText: { color: colors.leaf600, letterSpacing: 4, fontSize: 18 },
   window: { ...typography.small, color: colors.lime300, fontWeight: '800', marginTop: spacing.md },
   pastIcon: { color: colors.forest900, fontSize: 42, fontWeight: '900', marginTop: spacing.xl },
+  scheduledIcon: { color: colors.mango500, fontSize: 32, fontWeight: '900', marginTop: spacing.xl },
+  scheduledTitle: { color: colors.paper, fontSize: 28, fontWeight: '900', marginTop: spacing.sm },
 });

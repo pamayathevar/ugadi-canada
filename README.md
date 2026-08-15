@@ -6,6 +6,7 @@ Universal customer and admin MVP foundation for a Toronto/GTA importer bringing 
 
 - A premium responsive visual prototype with editorial product photography, shop, basket, delivery quote, order tracking, account and admin dashboard flows.
 - An Ugadi Rewards wallet with points activity, selectable offers and basket redemption calculations.
+- A Stripe-style test checkout with demo card details, local processing simulation and order confirmation.
 - A maintainable frontend architecture with shared design tokens/components and separated customer/admin screens.
 - Multi-category catalogue foundations for fruits, vegetables, spices, pantry items and gifts, with mangoes as the active seasonal campaign.
 - A non-destructive batch inventory, supplier, compliance and campaign migration for Supabase.
@@ -14,7 +15,7 @@ Universal customer and admin MVP foundation for a Toronto/GTA importer bringing 
 - Initial Supabase/Postgres schema and row-level security policies.
 - MVP scope, production architecture and client handover plan.
 
-The prototype uses demo data. Its checkout button intentionally does not charge a card.
+The prototype uses demo data. The Stripe checkout uses local test values and intentionally makes no payment network request or card charge.
 
 ## Run locally
 

@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button, Chip, Divider, ScreenFrame } from '../../components/ui';
 import { productImages } from '../../data/assets';
-import { CartLine, cartSubtotal, deliveryFeeCents, formatCad, pointsEarned, RewardAccount, rewardDiscountCents, RewardOffer, taxCents } from '../../domain/commerce';
+import { calculateCheckoutPricing, CartLine, formatCad, RewardAccount, RewardOffer } from '../../domain/commerce';
 import { colors, radius, shadow, spacing, typography } from '../../theme/tokens';
 
 export function CartScreen({
@@ -13,6 +13,7 @@ export function CartScreen({
   rewardOffers,
   selectedReward,
   onRewardChange,
+  onCheckout,
 }: {
   lines: CartLine[];
   wide: boolean;
@@ -22,14 +23,15 @@ export function CartScreen({
   rewardOffers: RewardOffer[];
   selectedReward?: RewardOffer;
   onRewardChange: (rewardId: string | null) => void;
+  onCheckout: () => void;
 }) {
-  const subtotal = cartSubtotal(lines);
-  const delivery = deliveryFeeCents(subtotal);
-  const rewardDiscount = rewardDiscountCents(selectedReward, rewardAccount.pointsBalance, subtotal);
-  const discountedSubtotal = Math.max(0, subtotal - rewardDiscount);
-  const tax = taxCents(discountedSubtotal + delivery);
-  const total = discountedSubtotal + delivery + tax;
-  const earnedPoints = pointsEarned(discountedSubtotal);
+  const pricing = calculateCheckoutPricing(lines, rewardAccount.pointsBalance, selectedReward);
+  const subtotal = pricing.subtotalCents;
+  const delivery = pricing.deliveryCents;
+  const rewardDiscount = pricing.rewardDiscountCents;
+  const tax = pricing.taxCents;
+  const total = pricing.totalCents;
+  const earnedPoints = pricing.earnedPoints;
   const rewardShortfall = selectedReward ? Math.max(0, selectedReward.minimumSubtotalCents - subtotal) : 0;
 
   if (!lines.length) return <ScreenFrame style={styles.page}><Pressable onPress={onBack}><Text style={styles.back}>‹ Return to the collection</Text></Pressable><View style={styles.empty}><View style={styles.emptyIcon}><Text style={styles.emptyIconText}>⌑</Text></View><Text style={styles.emptyTitle}>Your basket is waiting.</Text><Text style={styles.emptyCopy}>Discover this season’s mango boxes and bring home something exceptional.</Text><Button label="Explore the collection" onPress={onBack} variant="secondary" /></View></ScreenFrame>;
@@ -105,7 +107,7 @@ export function CartScreen({
           <Divider />
           <View style={styles.totalRow}><Text style={styles.totalLabel}>Total</Text><Text style={styles.totalValue}>{formatCad(total)}</Text></View>
           <View style={styles.earnPoints}><Text style={styles.earnPointsIcon}>✦</Text><Text style={styles.earnPointsCopy}>You’ll earn <Text style={styles.earnPointsStrong}>{earnedPoints} points</Text> when this order is completed.</Text></View>
-          <Button label="Continue to secure payment" onPress={() => {}} variant="secondary" />
+          <Button label="Continue to secure payment" onPress={onCheckout} variant="secondary" />
           <View style={styles.secure}><Text style={styles.secureIcon}>◇</Text><Text style={styles.secureCopy}>Payment details are handled securely by the selected payment provider.</Text></View>
           <Text style={styles.demo}>Prototype checkout · no card will be charged</Text>
         </View>

@@ -65,6 +65,7 @@ Beta can begin with manual route assignment and driver location/status updates. 
 - A recalled or quality-held batch cannot be allocated to a new order.
 - Price, tax, delivery fee and inventory are recalculated server-side at checkout.
 - Duplicate payment requests/webhooks cannot duplicate an order or charge.
+- The user-testing build clearly labels simulated Stripe payment states and never transmits entered test-card values.
 - Customers can read only their own orders, addresses and tracking data.
 - Staff actions are role-gated and recorded in status history/audit logs.
 - A failed payment leaves no committed inventory reservation after expiry.

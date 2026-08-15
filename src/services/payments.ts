@@ -17,6 +17,27 @@ export interface PaymentGateway {
   createCheckout(request: CheckoutRequest): Promise<CheckoutSession>;
 }
 
+export type MockStripeReceipt = {
+  status: 'succeeded';
+  providerReference: string;
+  cardBrand: 'Visa';
+  cardLast4: '4242';
+  paidAt: string;
+};
+
+/** Prototype-only simulation. It performs no network request and handles no card data. */
+export async function confirmMockStripePayment(amountCents: number): Promise<MockStripeReceipt> {
+  if (amountCents <= 0) throw new Error('A positive total is required.');
+  await new Promise((resolve) => setTimeout(resolve, 900));
+  return {
+    status: 'succeeded',
+    providerReference: `pi_mock_${Date.now()}`,
+    cardBrand: 'Visa',
+    cardLast4: '4242',
+    paidAt: new Date().toISOString(),
+  };
+}
+
 /**
  * The app calls one authenticated server endpoint. Provider credentials, amount
  * validation, idempotency, capture and webhook reconciliation remain server-side.

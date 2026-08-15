@@ -67,6 +67,16 @@ export type RewardOffer = {
   minimumSubtotalCents: number;
 };
 
+export type CheckoutPricing = {
+  subtotalCents: number;
+  deliveryCents: number;
+  rewardDiscountCents: number;
+  discountedSubtotalCents: number;
+  taxCents: number;
+  totalCents: number;
+  earnedPoints: number;
+};
+
 export type OrderStatus =
   | 'payment_pending'
   | 'confirmed'
@@ -105,3 +115,25 @@ export const rewardDiscountCents = (
 
 export const pointsEarned = (eligibleSubtotalCents: number) =>
   Math.max(0, Math.floor(eligibleSubtotalCents / 100));
+
+export const calculateCheckoutPricing = (
+  lines: CartLine[],
+  pointsBalance: number,
+  offer?: RewardOffer,
+): CheckoutPricing => {
+  const subtotalCents = cartSubtotal(lines);
+  const deliveryCents = deliveryFeeCents(subtotalCents);
+  const appliedRewardCents = rewardDiscountCents(offer, pointsBalance, subtotalCents);
+  const discountedSubtotalCents = Math.max(0, subtotalCents - appliedRewardCents);
+  const estimatedTaxCents = taxCents(discountedSubtotalCents + deliveryCents);
+
+  return {
+    subtotalCents,
+    deliveryCents,
+    rewardDiscountCents: appliedRewardCents,
+    discountedSubtotalCents,
+    taxCents: estimatedTaxCents,
+    totalCents: discountedSubtotalCents + deliveryCents + estimatedTaxCents,
+    earnedPoints: pointsEarned(discountedSubtotalCents),
+  };
+};

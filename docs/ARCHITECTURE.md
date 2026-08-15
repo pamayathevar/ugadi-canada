@@ -89,6 +89,12 @@ The `PaymentGateway` interface supports either provider:
 
 Launch one provider. Maintaining two live providers doubles settlement, refund, webhook and support paths without improving the beta.
 
+### Prototype Stripe flow
+
+`src/screens/customer/PaymentScreen.tsx` reproduces the checkout states needed for user testing: test card details, pricing/reward review, processing, confirmation and a newly scheduled order. `confirmMockStripePayment` waits locally and returns a fake receipt; it does not import the Stripe SDK, tokenize a card, call a server or persist payment data.
+
+For production, replace only that mock boundary with an authenticated `create-checkout` server function and Stripe PaymentSheet/Elements. The server must recalculate the basket, create an idempotent PaymentIntent and treat the signed Stripe webhook—not the client confirmation screen—as payment authority.
+
 ## Handover-friendly practices
 
 - Put the client's organization in control of source hosting, Expo/EAS, Apple, Google Play, Supabase, payment, maps and domain accounts from day one.

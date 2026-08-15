@@ -1,13 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { AdminHeader, CustomerHeader, CustomerTab, MobileNav } from './src/components/AppChrome';
 import { Brand, ScreenFrame } from './src/components/ui';
-import { CartLine, Product } from './src/domain/commerce';
+import { CartLine, Order, Product } from './src/domain/commerce';
 import { demoRewardAccount, rewardOffers } from './src/data/rewards';
 import { AccountScreen } from './src/screens/customer/AccountScreen';
 import { CartScreen } from './src/screens/customer/CartScreen';
 import { OrdersScreen } from './src/screens/customer/OrdersScreen';
+import { PaymentScreen } from './src/screens/customer/PaymentScreen';
 import { ShopScreen } from './src/screens/customer/ShopScreen';
 import { AdminDashboard } from './src/screens/admin/AdminDashboard';
 import { colors, spacing, typography } from './src/theme/tokens';
@@ -15,12 +16,15 @@ import { colors, spacing, typography } from './src/theme/tokens';
 type AppMode = 'customer' | 'admin';
 
 export default function App() {
+  const scrollRef = useRef<ScrollView>(null);
   const { width } = useWindowDimensions();
   const wide = width >= 860;
   const [mode, setMode] = useState<AppMode>('customer');
   const [tab, setTab] = useState<CustomerTab>('shop');
   const [cartOpen, setCartOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
   const [cart, setCart] = useState<CartLine[]>([]);
+  const [recentOrder, setRecentOrder] = useState<Order>();
   const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
   const cartCount = cart.reduce((total, line) => total + line.quantity, 0);
   const selectedReward = rewardOffers.find((offer) => offer.id === selectedRewardId);
@@ -28,6 +32,7 @@ export default function App() {
   const changeTab = (nextTab: CustomerTab) => {
     setTab(nextTab);
     setCartOpen(false);
+    setPaymentOpen(false);
   };
 
   const addProduct = (product: Product) => {
@@ -45,17 +50,36 @@ export default function App() {
       : current.map((line) => line.product.id === productId ? { ...line, quantity } : line));
   };
 
+  const finishPayment = (order: Order) => {
+    setRecentOrder(order);
+    setCart([]);
+    setSelectedRewardId(null);
+    setPaymentOpen(false);
+    setCartOpen(false);
+    setTab('orders');
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar style={mode === 'admin' ? 'light' : 'dark'} />
       {mode === 'admin'
         ? <AdminHeader onShop={() => { setMode('customer'); setTab('shop'); }} />
-        : <CustomerHeader activeTab={tab} onTab={changeTab} cartCount={cartCount} onCart={() => setCartOpen(true)} onAdmin={() => setMode('admin')} wide={wide} />}
+        : <CustomerHeader activeTab={tab} onTab={changeTab} cartCount={cartCount} onCart={() => { setPaymentOpen(false); setCartOpen(true); }} onAdmin={() => setMode('admin')} wide={wide} />}
 
-      <ScrollView style={styles.scroll} contentContainerStyle={!wide && mode === 'customer' ? styles.mobileScroll : undefined}>
+      <ScrollView ref={scrollRef} key={mode === 'admin' ? 'admin' : paymentOpen ? 'payment' : cartOpen ? 'cart' : tab} style={styles.scroll} contentContainerStyle={!wide && mode === 'customer' ? styles.mobileScroll : undefined}>
         {mode === 'admin'
           ? <AdminDashboard wide={wide} />
-          : cartOpen
+          : paymentOpen
+            ? <PaymentScreen
+              lines={cart}
+              wide={wide}
+              rewardAccount={demoRewardAccount}
+              selectedReward={selectedReward}
+              onBack={() => { setPaymentOpen(false); setCartOpen(true); }}
+              onPaymentSuccess={() => scrollRef.current?.scrollTo({ y: 0, animated: false })}
+              onComplete={finishPayment}
+            />
+            : cartOpen
             ? <CartScreen
               lines={cart}
               wide={wide}
@@ -65,11 +89,12 @@ export default function App() {
               rewardOffers={rewardOffers}
               selectedReward={selectedReward}
               onRewardChange={setSelectedRewardId}
+              onCheckout={() => { setCartOpen(false); setPaymentOpen(true); }}
             />
             : tab === 'shop'
               ? <><ShopScreen wide={wide} onAdd={addProduct} onCart={() => setCartOpen(true)} /><CustomerFooter /></>
               : tab === 'orders'
-                ? <OrdersScreen wide={wide} />
+                ? <OrdersScreen wide={wide} recentOrder={recentOrder} />
                 : <AccountScreen
                   wide={wide}
                   onAdmin={() => setMode('admin')}
@@ -80,7 +105,7 @@ export default function App() {
                 />}
       </ScrollView>
 
-      {!wide && mode === 'customer' && !cartOpen ? <MobileNav activeTab={tab} onTab={changeTab} /> : null}
+      {!wide && mode === 'customer' && !cartOpen && !paymentOpen ? <MobileNav activeTab={tab} onTab={changeTab} /> : null}
     </SafeAreaView>
   );
 }
