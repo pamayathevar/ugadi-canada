@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Ugadi Canada",
+    "slug": "ugadi-canada",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "ugadicanada",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ca.ugadicanada.app"
+    },
+    "android": {
+      "package": "ca.ugadicanada.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFF8E6"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    }
+  }
+}
