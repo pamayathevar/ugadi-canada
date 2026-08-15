@@ -19,6 +19,12 @@
     "web": {
       "bundler": "metro",
       "output": "single"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "de4e833f-e9db-44e9-a60f-f8e4684bfccb"
+      }
+    },
+    "owner": "pandiyanmayathevar"
   }
 }
