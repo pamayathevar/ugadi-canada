@@ -12,6 +12,7 @@ export function AdminDashboard({ wide }: { wide: boolean }) {
           ['NET SALES', '$2,846.50', '28 payments captured', '◇'],
           ['UNITS AVAILABLE', '67', 'Across 3 active SKUs', '▣'],
           ['ON-TIME DELIVERY', '96%', 'Last 30 days', '✓'],
+          ['REWARDS REDEEMED', '$428', '21 customer redemptions', '✦'],
         ] as const).map(([label, value, note, icon]) => <View style={styles.metric} key={label}><View style={styles.metricTop}><Text style={styles.metricLabel}>{label}</Text><Text style={styles.metricIcon}>{icon}</Text></View><Text style={styles.metricValue}>{value}</Text><Text style={styles.metricNote}>{note}</Text></View>)}
       </View>
 
@@ -45,6 +46,14 @@ export function AdminDashboard({ wide }: { wide: boolean }) {
               ['Toronto West', '8 stops · 2:00–5:00 PM', 'Packing'],
               ['Mississauga', '6 stops · 3:00–6:00 PM', 'Ready'],
             ] as const).map(([name, summary, status]) => <View style={styles.route} key={name}><View style={styles.routeIcon}><Text>⌁</Text></View><View style={{ flex: 1 }}><Text style={styles.routeName}>{name}</Text><Text style={styles.routeSummary}>{summary}</Text></View><Chip label={status} tone="neutral" /></View>)}
+          </View>
+          <View style={styles.routes}>
+            <Text style={styles.panelEyebrow}>REWARDS PROGRAM</Text>
+            {([
+              ['Active members', '184 enrolled customers', 'Healthy'],
+              ['Points issued', '7,420 points this month', 'Tracking'],
+              ['Pending redemptions', '6 rewards · $55 reserved', 'Review'],
+            ] as const).map(([name, summary, status]) => <View style={styles.route} key={name}><View style={styles.routeIcon}><Text>✦</Text></View><View style={{ flex: 1 }}><Text style={styles.routeName}>{name}</Text><Text style={styles.routeSummary}>{summary}</Text></View><Chip label={status} tone={status === 'Healthy' ? 'green' : 'neutral'} /></View>)}
           </View>
           <View style={styles.routes}>
             <Text style={styles.panelEyebrow}>CATALOGUE READINESS</Text>

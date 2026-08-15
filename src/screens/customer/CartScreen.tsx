@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button, Chip, Divider, ScreenFrame } from '../../components/ui';
 import { productImages } from '../../data/assets';
-import { CartLine, cartSubtotal, deliveryFeeCents, formatCad, taxCents } from '../../domain/commerce';
+import { CartLine, cartSubtotal, deliveryFeeCents, formatCad, pointsEarned, RewardAccount, rewardDiscountCents, RewardOffer, taxCents } from '../../domain/commerce';
 import { colors, radius, shadow, spacing, typography } from '../../theme/tokens';
 
 export function CartScreen({
@@ -9,16 +9,28 @@ export function CartScreen({
   wide,
   onBack,
   onQuantity,
+  rewardAccount,
+  rewardOffers,
+  selectedReward,
+  onRewardChange,
 }: {
   lines: CartLine[];
   wide: boolean;
   onBack: () => void;
   onQuantity: (productId: string, quantity: number) => void;
+  rewardAccount: RewardAccount;
+  rewardOffers: RewardOffer[];
+  selectedReward?: RewardOffer;
+  onRewardChange: (rewardId: string | null) => void;
 }) {
   const subtotal = cartSubtotal(lines);
   const delivery = deliveryFeeCents(subtotal);
-  const tax = taxCents(subtotal + delivery);
-  const total = subtotal + delivery + tax;
+  const rewardDiscount = rewardDiscountCents(selectedReward, rewardAccount.pointsBalance, subtotal);
+  const discountedSubtotal = Math.max(0, subtotal - rewardDiscount);
+  const tax = taxCents(discountedSubtotal + delivery);
+  const total = discountedSubtotal + delivery + tax;
+  const earnedPoints = pointsEarned(discountedSubtotal);
+  const rewardShortfall = selectedReward ? Math.max(0, selectedReward.minimumSubtotalCents - subtotal) : 0;
 
   if (!lines.length) return <ScreenFrame style={styles.page}><Pressable onPress={onBack}><Text style={styles.back}>‹ Return to the collection</Text></Pressable><View style={styles.empty}><View style={styles.emptyIcon}><Text style={styles.emptyIconText}>⌑</Text></View><Text style={styles.emptyTitle}>Your basket is waiting.</Text><Text style={styles.emptyCopy}>Discover this season’s mango boxes and bring home something exceptional.</Text><Button label="Explore the collection" onPress={onBack} variant="secondary" /></View></ScreenFrame>;
 
@@ -45,6 +57,33 @@ export function CartScreen({
             <Text style={styles.linePrice}>{formatCad(line.product.unitPriceCents * line.quantity)}</Text>
           </View>)}
 
+          <View style={styles.rewardsCard}>
+            <View style={styles.rewardsHeading}>
+              <View style={styles.rewardsMark}><Text style={styles.rewardsMarkText}>✦</Text></View>
+              <View style={{ flex: 1 }}><Text style={styles.rewardsEyebrow}>UGADI REWARDS</Text><Text style={styles.rewardsTitle}>Use points on this order</Text><Text style={styles.rewardsCopy}>{rewardAccount.pointsBalance.toLocaleString('en-CA')} points available</Text></View>
+            </View>
+            {selectedReward ? <View style={[styles.selectedReward, !rewardDiscount && styles.selectedRewardPending]}>
+              <View style={styles.selectedRewardCheck}><Text style={styles.selectedRewardCheckText}>{rewardDiscount ? '✓' : '!'}</Text></View>
+              <View style={{ flex: 1 }}><Text style={styles.selectedRewardName}>{selectedReward.name}</Text><Text style={styles.selectedRewardCopy}>{rewardDiscount ? `${selectedReward.pointsCost} points reserved · ${formatCad(selectedReward.discountCents)} saved` : `Add ${formatCad(rewardShortfall)} more to unlock this reward.`}</Text></View>
+              <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${selectedReward.name}`} onPress={() => onRewardChange(null)}><Text style={styles.removeReward}>Remove</Text></Pressable>
+            </View> : <View>
+              <Text style={styles.chooseReward}>Choose one reward for this basket</Text>
+              <View style={styles.rewardChoices}>{rewardOffers.map((offer) => {
+                const locked = rewardAccount.pointsBalance < offer.pointsCost;
+                const minimumMissing = Math.max(0, offer.minimumSubtotalCents - subtotal);
+                return <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Redeem ${offer.name}`}
+                  accessibilityState={{ disabled: locked }}
+                  disabled={locked}
+                  key={offer.id}
+                  onPress={() => onRewardChange(offer.id)}
+                  style={({ pressed }) => [styles.rewardChoice, locked && styles.rewardChoiceLocked, pressed && styles.rewardChoicePressed]}
+                ><Text style={styles.rewardChoiceValue}>{formatCad(offer.discountCents)} off</Text><Text style={styles.rewardChoiceCost}>{offer.pointsCost} pts</Text><Text style={styles.rewardChoiceStatus}>{locked ? `${offer.pointsCost - rewardAccount.pointsBalance} more points needed` : minimumMissing ? `Add ${formatCad(minimumMissing)} to qualify` : 'Ready to redeem'}</Text></Pressable>;
+              })}</View>
+            </View>}
+          </View>
+
           <View style={styles.deliveryCard}>
             <View style={styles.deliveryHeading}><View style={styles.deliveryMark}><Text style={styles.deliveryMarkText}>⌖</Text></View><View><Text style={styles.deliveryTitle}>Where should we deliver?</Text><Text style={styles.deliveryCopy}>We’ll confirm serviceability and available dates.</Text></View></View>
             <Text style={styles.label}>Postal code</Text>
@@ -59,11 +98,13 @@ export function CartScreen({
           <Text style={styles.summaryTitle}>{lines.reduce((sum, line) => sum + line.quantity, 0)} premium box{lines.reduce((sum, line) => sum + line.quantity, 0) === 1 ? '' : 'es'}</Text>
           <Divider />
           <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Subtotal</Text><Text style={styles.summaryValue}>{formatCad(subtotal)}</Text></View>
+          {selectedReward ? <View style={styles.summaryRow}><Text style={styles.rewardSummaryLabel}>Rewards · {selectedReward.pointsCost} pts</Text><Text style={styles.rewardSummaryValue}>{rewardDiscount ? `−${formatCad(rewardDiscount)}` : 'Not applied'}</Text></View> : null}
           <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Delivery</Text><Text style={styles.summaryValue}>{delivery ? formatCad(delivery) : 'Complimentary'}</Text></View>
           <View style={styles.summaryRow}><Text style={styles.summaryLabel}>Estimated HST</Text><Text style={styles.summaryValue}>{formatCad(tax)}</Text></View>
           {delivery ? <Text style={styles.threshold}>Add {formatCad(Math.max(0, 7500 - subtotal))} more for complimentary delivery.</Text> : <Text style={styles.freeDelivery}>✓ Complimentary delivery applied</Text>}
           <Divider />
           <View style={styles.totalRow}><Text style={styles.totalLabel}>Total</Text><Text style={styles.totalValue}>{formatCad(total)}</Text></View>
+          <View style={styles.earnPoints}><Text style={styles.earnPointsIcon}>✦</Text><Text style={styles.earnPointsCopy}>You’ll earn <Text style={styles.earnPointsStrong}>{earnedPoints} points</Text> when this order is completed.</Text></View>
           <Button label="Continue to secure payment" onPress={() => {}} variant="secondary" />
           <View style={styles.secure}><Text style={styles.secureIcon}>◇</Text><Text style={styles.secureCopy}>Payment details are handled securely by the selected payment provider.</Text></View>
           <Text style={styles.demo}>Prototype checkout · no card will be charged</Text>
@@ -92,6 +133,28 @@ const styles = StyleSheet.create({
   quantityButton: { width: 34, height: 30, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.canvas },
   quantityButtonText: { color: colors.forest900, fontSize: 17, fontWeight: '900' },
   quantityValue: { width: 34, textAlign: 'center', color: colors.ink, fontWeight: '900' },
+  rewardsCard: { backgroundColor: colors.ivory, borderColor: colors.mango500, borderWidth: 1, borderRadius: radius.lg, padding: spacing.xl },
+  rewardsHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  rewardsMark: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.mango500, alignItems: 'center', justifyContent: 'center' },
+  rewardsMarkText: { color: colors.forest950, fontSize: 20, fontWeight: '900' },
+  rewardsEyebrow: { ...typography.micro, color: colors.leaf600 },
+  rewardsTitle: { ...typography.h3, color: colors.ink, marginTop: 2 },
+  rewardsCopy: { ...typography.small, color: colors.inkSoft },
+  selectedReward: { backgroundColor: colors.successSoft, borderColor: colors.leaf500, borderWidth: 1, borderRadius: radius.md, padding: spacing.md, marginTop: spacing.lg, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  selectedRewardPending: { backgroundColor: colors.mango100, borderColor: colors.mango500 },
+  selectedRewardCheck: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.forest900, alignItems: 'center', justifyContent: 'center' },
+  selectedRewardCheckText: { color: colors.paper, fontWeight: '900' },
+  selectedRewardName: { color: colors.ink, fontSize: 13, fontWeight: '900' },
+  selectedRewardCopy: { ...typography.small, color: colors.inkSoft, marginTop: 2 },
+  removeReward: { ...typography.small, color: colors.forest800, fontWeight: '900', textDecorationLine: 'underline' },
+  chooseReward: { ...typography.small, color: colors.inkSoft, marginTop: spacing.lg, marginBottom: spacing.sm },
+  rewardChoices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  rewardChoice: { flex: 1, minWidth: 145, backgroundColor: colors.paper, borderColor: colors.line, borderWidth: 1, borderRadius: radius.md, padding: spacing.md },
+  rewardChoiceLocked: { opacity: .5 },
+  rewardChoicePressed: { borderColor: colors.leaf500, backgroundColor: colors.successSoft },
+  rewardChoiceValue: { color: colors.forest900, fontSize: 16, fontWeight: '900' },
+  rewardChoiceCost: { ...typography.micro, color: colors.leaf600, marginTop: spacing.xs },
+  rewardChoiceStatus: { ...typography.small, color: colors.inkSoft, marginTop: spacing.sm },
   deliveryCard: { marginTop: spacing.sm, backgroundColor: colors.paper, borderColor: colors.line, borderWidth: 1, borderRadius: radius.lg, padding: spacing.xl },
   deliveryHeading: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   deliveryMark: { width: 45, height: 45, borderRadius: 23, backgroundColor: colors.mango100, alignItems: 'center', justifyContent: 'center' },
@@ -114,11 +177,17 @@ const styles = StyleSheet.create({
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.lg, marginBottom: spacing.md },
   summaryLabel: { ...typography.small, color: '#BED0C1' },
   summaryValue: { ...typography.small, color: colors.paper, fontWeight: '800' },
+  rewardSummaryLabel: { ...typography.small, color: colors.lime300, fontWeight: '800' },
+  rewardSummaryValue: { ...typography.small, color: colors.lime300, fontWeight: '900' },
   threshold: { ...typography.small, color: colors.mango500, backgroundColor: '#164F2E', borderRadius: radius.sm, padding: spacing.md, marginTop: spacing.sm },
   freeDelivery: { ...typography.small, color: colors.lime300, marginTop: spacing.sm },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.lg },
   totalLabel: { color: colors.paper, fontSize: 17, fontWeight: '900' },
   totalValue: { color: colors.paper, fontSize: 27, fontWeight: '900' },
+  earnPoints: { backgroundColor: '#14522F', borderRadius: radius.md, padding: spacing.md, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.lg },
+  earnPointsIcon: { color: colors.mango500, fontSize: 17, fontWeight: '900' },
+  earnPointsCopy: { ...typography.small, color: '#BBD0BF', flex: 1 },
+  earnPointsStrong: { color: colors.paper, fontWeight: '900' },
   secure: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start', marginTop: spacing.lg },
   secureIcon: { color: colors.lime300, fontSize: 17 },
   secureCopy: { ...typography.small, color: '#BBD0BF', flex: 1 },

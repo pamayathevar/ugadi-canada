@@ -4,6 +4,7 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View }
 import { AdminHeader, CustomerHeader, CustomerTab, MobileNav } from './src/components/AppChrome';
 import { Brand, ScreenFrame } from './src/components/ui';
 import { CartLine, Product } from './src/domain/commerce';
+import { demoRewardAccount, rewardOffers } from './src/data/rewards';
 import { AccountScreen } from './src/screens/customer/AccountScreen';
 import { CartScreen } from './src/screens/customer/CartScreen';
 import { OrdersScreen } from './src/screens/customer/OrdersScreen';
@@ -20,7 +21,9 @@ export default function App() {
   const [tab, setTab] = useState<CustomerTab>('shop');
   const [cartOpen, setCartOpen] = useState(false);
   const [cart, setCart] = useState<CartLine[]>([]);
+  const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
   const cartCount = cart.reduce((total, line) => total + line.quantity, 0);
+  const selectedReward = rewardOffers.find((offer) => offer.id === selectedRewardId);
 
   const changeTab = (nextTab: CustomerTab) => {
     setTab(nextTab);
@@ -49,16 +52,32 @@ export default function App() {
         ? <AdminHeader onShop={() => { setMode('customer'); setTab('shop'); }} />
         : <CustomerHeader activeTab={tab} onTab={changeTab} cartCount={cartCount} onCart={() => setCartOpen(true)} onAdmin={() => setMode('admin')} wide={wide} />}
 
-      <ScrollView style={styles.scroll} contentContainerStyle={!wide && styles.mobileScroll}>
+      <ScrollView style={styles.scroll} contentContainerStyle={!wide && mode === 'customer' ? styles.mobileScroll : undefined}>
         {mode === 'admin'
           ? <AdminDashboard wide={wide} />
           : cartOpen
-            ? <CartScreen lines={cart} wide={wide} onBack={() => setCartOpen(false)} onQuantity={updateQuantity} />
+            ? <CartScreen
+              lines={cart}
+              wide={wide}
+              onBack={() => setCartOpen(false)}
+              onQuantity={updateQuantity}
+              rewardAccount={demoRewardAccount}
+              rewardOffers={rewardOffers}
+              selectedReward={selectedReward}
+              onRewardChange={setSelectedRewardId}
+            />
             : tab === 'shop'
               ? <><ShopScreen wide={wide} onAdd={addProduct} onCart={() => setCartOpen(true)} /><CustomerFooter /></>
               : tab === 'orders'
                 ? <OrdersScreen wide={wide} />
-                : <AccountScreen onAdmin={() => setMode('admin')} />}
+                : <AccountScreen
+                  wide={wide}
+                  onAdmin={() => setMode('admin')}
+                  rewardAccount={demoRewardAccount}
+                  rewardOffers={rewardOffers}
+                  selectedReward={selectedReward}
+                  onRewardChange={setSelectedRewardId}
+                />}
       </ScrollView>
 
       {!wide && mode === 'customer' && !cartOpen ? <MobileNav activeTab={tab} onTab={changeTab} /> : null}
@@ -80,7 +99,7 @@ function CustomerFooter() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.ivory },
   scroll: { flex: 1, backgroundColor: colors.canvas },
-  mobileScroll: { paddingBottom: 12 },
+  mobileScroll: { paddingBottom: 86 },
   footer: { backgroundColor: colors.forest950, paddingTop: spacing.xxxl, paddingBottom: spacing.xl },
   footerInner: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: spacing.xxxl },
   footerBrand: { maxWidth: 330 },

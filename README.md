@@ -5,6 +5,7 @@ Universal customer and admin MVP foundation for a Toronto/GTA importer bringing 
 ## What is included
 
 - A premium responsive visual prototype with editorial product photography, shop, basket, delivery quote, order tracking, account and admin dashboard flows.
+- An Ugadi Rewards wallet with points activity, selectable offers and basket redemption calculations.
 - A maintainable frontend architecture with shared design tokens/components and separated customer/admin screens.
 - Multi-category catalogue foundations for fruits, vegetables, spices, pantry items and gifts, with mangoes as the active seasonal campaign.
 - A non-destructive batch inventory, supplier, compliance and campaign migration for Supabase.
@@ -30,7 +31,7 @@ Or use `npm run ios` / `npm run android`. Copy `.env.example` to `.env` only whe
 
 1. Confirm the decisions in `docs/PRODUCT_SPEC.md`.
 2. Create client-owned development/staging Supabase and Expo/EAS projects.
-3. Add Supabase Auth/client setup and apply the migration.
+3. Add Supabase Auth/client setup and apply all three migrations, including `003_rewards.sql`.
 4. Replace demo products/orders with repository queries.
 5. Implement the transactional `create-order` server function.
 6. Implement one payment provider and signed webhook reconciliation.

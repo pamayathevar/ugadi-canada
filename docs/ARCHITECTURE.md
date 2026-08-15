@@ -45,6 +45,8 @@ This keeps brand styling consistent, prevents customer code from absorbing admin
 - Products describe what Ugadi sells; variants describe fixed pack sizes and prices; batches describe the physical inventory received from a supplier.
 - Every inventory reservation and release should create an immutable movement record linked to a batch and, when applicable, an order.
 - Seasonal homepage content comes from campaigns instead of hardcoded screens, so mangoes can lead today and other categories can lead later.
+- Reward points are a server-owned ledger. The client may select an offer, but checkout must revalidate balance, offer dates and minimum spend before reserving points.
+- Points are permanently redeemed and newly earned only after a signed payment event confirms the order; refunds and cancellations create reversing ledger entries.
 
 ## Catalogue model
 
@@ -61,6 +63,22 @@ Campaign
 ```
 
 `supabase/migrations/002_catalog_foundation.sql` introduces this model non-destructively. The legacy `products.inventory` field remains only for the beta transition and must not become the source of truth for new reservation functions.
+
+## Rewards model
+
+```text
+Customer
+  └─ Reward account (balance / lifetime points / tier)
+       └─ Reward transaction ledger (earn / redeem / reverse / adjust / expire)
+
+Reward offer
+  └─ Points cost + discount + minimum basket + active dates
+
+Order
+  └─ Reward offer + points redeemed/earned + discount snapshot
+```
+
+`supabase/migrations/003_rewards.sql` adds offers, accounts, the immutable transaction ledger and order reward snapshots. A checkout function must lock the account row and reserve points atomically; the payment webhook finalizes both redemption and earnings with idempotency protection.
 
 ## Payment approach
 

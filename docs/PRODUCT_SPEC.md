@@ -21,6 +21,7 @@ The client campaign poster is preserved as the primary visual reference; impleme
 5. Receive an order confirmation and status notifications.
 6. View order history, scheduled window and—only once dispatched—traffic-aware ETA on a map.
 7. Manage profile, addresses and notification preferences.
+8. View the Ugadi Rewards balance and activity, select one eligible reward and see the discount and future earnings in the basket.
 
 Guest browsing is supported, but authentication is required before payment so an order always has an owner and can be recovered on another device.
 
@@ -34,6 +35,7 @@ Guest browsing is supported, but authentication is required before payment so an
 6. Create routes/driver assignments and update dispatch status.
 7. View payment state and initiate a controlled refund; never view raw card data.
 8. Export daily orders and contact customers.
+9. View reward enrollment, points issuance and pending redemption totals; adjust balances only through an audited support action.
 
 `support` can work with orders and customers. `admin` also manages catalogue and delivery configuration. `owner` controls staff access and payment configuration.
 
@@ -48,7 +50,7 @@ Beta can begin with manual route assignment and driver location/status updates. 
 
 ## Out of scope for first beta
 
-- Multi-vendor marketplace, subscriptions, loyalty points and complex promotions.
+- Multi-vendor marketplace, subscriptions and complex promotion stacking.
 - Automated warehouse purchasing/import management.
 - Variable/catch-weight pricing; beta products use fixed packs and variants.
 - Live multi-stop route optimization and driver payroll.
@@ -67,6 +69,7 @@ Beta can begin with manual route assignment and driver location/status updates. 
 - Staff actions are role-gated and recorded in status history/audit logs.
 - A failed payment leaves no committed inventory reservation after expiry.
 - No payment secret, routing server key or service-role key ships in the app bundle.
+- Reward balances and offer eligibility are recalculated server-side; duplicate webhooks cannot double-earn or double-redeem points.
 
 ## Decisions needed before live integration
 
@@ -77,3 +80,4 @@ Beta can begin with manual route assignment and driver location/status updates. 
 5. Launch payment provider: Stripe or Moneris, plus merchant test credentials.
 6. Refund/cancellation, substitution, privacy and delivery policies.
 7. Whether drivers are employees/contractors and how they share location.
+8. Rewards launch rules: tier thresholds, point expiry, refund reversals and whether points are earned before or after tax/delivery.

@@ -49,6 +49,24 @@ export type CartLine = {
   quantity: number;
 };
 
+export type RewardTier = 'seedling' | 'harvest' | 'heritage';
+
+export type RewardAccount = {
+  pointsBalance: number;
+  lifetimePoints: number;
+  tier: RewardTier;
+  nextTierPoints: number;
+};
+
+export type RewardOffer = {
+  id: string;
+  name: string;
+  description: string;
+  pointsCost: number;
+  discountCents: number;
+  minimumSubtotalCents: number;
+};
+
 export type OrderStatus =
   | 'payment_pending'
   | 'confirmed'
@@ -76,3 +94,14 @@ export const cartSubtotal = (lines: CartLine[]) =>
 export const taxCents = (subtotalCents: number, rate = 0.13) => Math.round(subtotalCents * rate);
 
 export const deliveryFeeCents = (subtotalCents: number) => (subtotalCents >= 7500 ? 0 : 899);
+
+export const rewardDiscountCents = (
+  offer: RewardOffer | undefined,
+  pointsBalance: number,
+  subtotalCents: number,
+) => offer && pointsBalance >= offer.pointsCost && subtotalCents >= offer.minimumSubtotalCents
+  ? Math.min(offer.discountCents, subtotalCents)
+  : 0;
+
+export const pointsEarned = (eligibleSubtotalCents: number) =>
+  Math.max(0, Math.floor(eligibleSubtotalCents / 100));
