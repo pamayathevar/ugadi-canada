@@ -8,6 +8,9 @@ export const productImages: Record<string, ImageSourcePropType> = {
 
 export const brandImages = {
   hero: require('../../assets/brand/ugadi-hero-premium.png') as ImageSourcePropType,
+  clientMark: require('../../assets/brand/client/ugadi-mark-white.png') as ImageSourcePropType,
+  clientWordmark: require('../../assets/brand/client/ugadi-wordmark-white.png') as ImageSourcePropType,
+  clientTagline: require('../../assets/brand/client/ugadi-tagline-white.png') as ImageSourcePropType,
 };
 
 export const categoryImages: Record<string, ImageSourcePropType> = {

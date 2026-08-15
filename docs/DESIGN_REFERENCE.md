@@ -2,6 +2,8 @@
 
 Primary client reference: `assets/reference/ugadi-campaign-reference.png`.
 
+Official client logo source: `assets/brand/client/ugadi-logo-original.png`. The responsive symbol, wordmark and tagline assets in the same folder are deterministic crops of this supplied raster; the artwork itself has not been redrawn or regenerated.
+
 ## Visual language carried into the app
 
 - Deep forest green for the brand, navigation and strong calls to action.
@@ -30,5 +32,5 @@ These are prototype-ready and licensed according to the image-generation service
 
 - Treat this poster as a visual reference, not a reusable operational announcement. Arrival and delivery days must come from current admin data.
 - Do not claim specific quality, sourcing, handpicking or transport methods unless the client can substantiate them for that product batch.
-- Use actual product photography and the client's approved vector logo before production. The current interface uses a code-drawn placeholder mark and emoji product art.
+- The prototype uses the client-supplied official raster logo. Request the approved vector master and formal clear-space/minimum-size guidance before production packaging or app-store submission.
 - Keep dense promotional typography in campaign areas; checkout, account and order screens remain calm and readable.

@@ -112,7 +112,7 @@ export default function App() {
 
 function CustomerFooter() {
   return <View style={styles.footer}><ScreenFrame style={styles.footerInner}>
-    <View style={styles.footerBrand}><Brand inverse /><Text style={styles.footerPromise}>Authentic taste from India, delivered with care across Canada.</Text></View>
+    <View style={styles.footerBrand}><Brand inverse showTagline /><Text style={styles.footerPromise}>Authentic taste from India, delivered with care across Canada.</Text></View>
     <View style={styles.footerColumns}>
       <View><Text style={styles.footerLabel}>SHOP</Text><Text style={styles.footerLink}>Fresh fruits</Text><Text style={styles.footerLink}>Vegetables</Text><Text style={styles.footerLink}>Spices & pantry</Text></View>
       <View><Text style={styles.footerLabel}>SUPPORT</Text><Text style={styles.footerLink}>Track an order</Text><Text style={styles.footerLink}>Contact us</Text><Text style={styles.footerLink}>Delivery policy</Text></View>

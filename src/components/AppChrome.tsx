@@ -53,7 +53,7 @@ export function AdminHeader({ onShop }: { onShop: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  header: { backgroundColor: 'rgba(255,253,245,0.98)', borderBottomColor: colors.line, borderBottomWidth: 1 },
+  header: { backgroundColor: colors.paper, borderBottomColor: colors.line, borderBottomWidth: 1 },
   adminHeader: { backgroundColor: colors.forest950, borderBottomColor: colors.lime300, borderBottomWidth: 3 },
   headerInner: { minHeight: 74, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.lg },
   desktopNav: { flexDirection: 'row', alignSelf: 'stretch' },

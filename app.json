@@ -3,6 +3,7 @@
     "name": "Ugadi Canada",
     "slug": "ugadi-canada",
     "version": "0.1.0",
+    "icon": "./assets/brand/client/ugadi-mark-white.png",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "ugadicanada",
@@ -13,12 +14,14 @@
     "android": {
       "package": "ca.ugadicanada.app",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/brand/client/ugadi-mark-white.png",
         "backgroundColor": "#FFF8E6"
       }
     },
     "web": {
       "bundler": "metro",
-      "output": "single"
+      "output": "single",
+      "favicon": "./assets/brand/client/ugadi-mark-white.png"
     },
     "extra": {
       "eas": {

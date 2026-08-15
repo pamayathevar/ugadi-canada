@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { brandImages } from '../data/assets';
 import { colors, contentMaxWidth, radius, shadow, spacing, typography } from '../theme/tokens';
 
 type ButtonVariant = 'primary' | 'secondary' | 'light' | 'ghost';
@@ -36,13 +37,15 @@ export function Button({
   );
 }
 
-export function Brand({ inverse = false }: { inverse?: boolean }) {
+export function Brand({ inverse = false, showTagline = false }: { inverse?: boolean; showTagline?: boolean }) {
   return (
-    <View style={styles.brandLockup}>
-      <View style={[styles.mark, inverse && styles.markInverse]}><View style={[styles.markCore, inverse && styles.markCoreInverse]} /></View>
-      <View>
-        <Text style={[styles.brandName, inverse && styles.inverseText]}>ugadi</Text>
-        <Text style={[styles.brandSub, inverse && styles.inverseMuted]}>CANADA</Text>
+    <View accessibilityLabel="Ugadi Canada" style={[styles.brandLockup, inverse && styles.brandLockupInverse]}>
+      <Image source={brandImages.clientMark} style={[styles.brandMark, showTagline && styles.brandMarkLarge]} resizeMode="contain" />
+      <View style={styles.brandWordColumn}>
+        <Image source={brandImages.clientWordmark} style={[styles.brandWordmark, showTagline && styles.brandWordmarkLarge]} resizeMode="contain" />
+        {showTagline
+          ? <Image source={brandImages.clientTagline} style={styles.brandTagline} resizeMode="contain" />
+          : <Text style={styles.brandCountry}>CANADA</Text>}
       </View>
     </View>
   );
@@ -84,14 +87,14 @@ const styles = StyleSheet.create({
   buttonIcon: { color: colors.paper, fontSize: 16, fontWeight: '900' },
   pressed: { opacity: .82, transform: [{ scale: .99 }] },
   brandLockup: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  mark: { width: 38, height: 38, borderRadius: 20, borderWidth: 9, borderColor: colors.forest800, borderTopColor: colors.lime300, transform: [{ rotate: '28deg' }], alignItems: 'center', justifyContent: 'center' },
-  markInverse: { borderColor: colors.lime300, borderTopColor: colors.paper },
-  markCore: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.ivory },
-  markCoreInverse: { backgroundColor: colors.forest950 },
-  brandName: { color: colors.forest900, fontSize: 29, lineHeight: 27, fontWeight: '900', letterSpacing: -1.8 },
-  brandSub: { color: colors.leaf600, fontSize: 8, lineHeight: 11, fontWeight: '900', letterSpacing: 3.2, marginLeft: 2 },
-  inverseText: { color: colors.paper },
-  inverseMuted: { color: colors.lime300 },
+  brandLockupInverse: { backgroundColor: colors.paper, borderRadius: radius.md, paddingHorizontal: spacing.sm, paddingVertical: 5 },
+  brandMark: { width: 39, height: 39 },
+  brandMarkLarge: { width: 52, height: 52 },
+  brandWordColumn: { justifyContent: 'center' },
+  brandWordmark: { width: 89, height: 30 },
+  brandWordmarkLarge: { width: 120, height: 40 },
+  brandTagline: { width: 168, height: 24, marginTop: -2 },
+  brandCountry: { color: colors.leaf600, fontSize: 8, lineHeight: 10, fontWeight: '900', letterSpacing: 3.1, marginLeft: 3, marginTop: -2 },
   frame: { width: '100%', maxWidth: contentMaxWidth, alignSelf: 'center', paddingHorizontal: spacing.xl },
   sectionHeading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: spacing.xl, marginBottom: spacing.xl },
   sectionText: { flex: 1, maxWidth: 670 },
