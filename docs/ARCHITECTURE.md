@@ -12,8 +12,10 @@ Expo app (Android / iOS / web)
        ├─ Delivery quote → service zones/capacity
        └─ ETA calculation → Google Routes API
 
-Admin experience (responsive web in the same codebase initially)
-  └─ Role-gated catalogue, batch inventory, order and delivery operations
+Role-gated operations experiences (responsive web/mobile in the same codebase initially)
+  ├─ Admin → catalogue, batch inventory, order, dispatch and partner management
+  ├─ Delivery partner → assigned route, stop status, ETA and proof of delivery
+  └─ Retail partner → store consignment inventory, sell-through and replenishment
 ```
 
 ## Frontend structure
@@ -28,11 +30,26 @@ src/components/AppChrome.tsx    Customer header, mobile navigation and admin chr
 src/data/                       Replaceable catalogue/demo repositories and asset map
 src/domain/                     Platform-neutral commerce types and calculations
 src/screens/customer/           Shop, basket, orders/tracking and account experiences
-src/screens/admin/              Operations dashboard and future admin workflows
+src/screens/admin/              Internal Ugadi operations dashboard
+src/screens/partners/           Delivery-provider and retail-store workspaces
 src/services/                   Payment and delivery integration boundaries
 ```
 
 This keeps brand styling consistent, prevents customer code from absorbing admin complexity, and lets Supabase repositories replace demo data without rewriting the visual layer. Expo Router can be introduced when authentication and deep-linked product/order URLs are implemented; the current small state router keeps the prototype dependency-light.
+
+## Partner operating model
+
+External partner access is organization-based rather than added to the single `profiles.role` field. A person may remain a customer while also belonging to one delivery provider or retail business. `partner_members` grants a scoped role inside that organization and supports removal without changing the person’s main account.
+
+### Private delivery providers
+
+Ugadi staff create routes, assign a delivery company and then assign an active driver member. A driver can read only their assigned route; a partner manager can read routes for that delivery organization. Customer contact/address data is disclosed only for an active assignment and should be automatically hidden after the retention window. Every arrival, delivery or exception becomes an immutable `delivery_stop_event`. The partner client calls a narrow server action instead of updating orders directly.
+
+### Retail partner stores
+
+The beta uses a consignment model: Ugadi transfers batch-traceable stock to a partner location, the location confirms receipt, store staff record sell-through, and the ledger drives replenishment and settlement. The store’s existing POS continues taking the shopper’s payment; Ugadi does not collect that card transaction. `partner_inventory_positions` remains attributable to the original Ugadi inventory batch, while partner sale lines snapshot both retail and agreed wholesale prices.
+
+`supabase/migrations/004_partner_operations.sql` adds partner organizations/members, routes/stops/events, consignment transfers/inventory, sales and replenishment with membership-scoped read policies. Production writes go through idempotent server functions that validate permitted state transitions and quantities.
 
 ## Important boundaries
 
@@ -47,6 +64,8 @@ This keeps brand styling consistent, prevents customer code from absorbing admin
 - Seasonal homepage content comes from campaigns instead of hardcoded screens, so mangoes can lead today and other categories can lead later.
 - Reward points are a server-owned ledger. The client may select an offer, but checkout must revalidate balance, offer dates and minimum spend before reserving points.
 - Points are permanently redeemed and newly earned only after a signed payment event confirms the order; refunds and cancellations create reversing ledger entries.
+- A delivery partner never receives unassigned routes or another driver’s customer list. Location/contact data expires after operational need ends.
+- A retail partner can see only its own locations, transfers, inventory and sales. Store sell-through is append-only; corrections use void/reversal events instead of rewriting history.
 
 ## Catalogue model
 
@@ -112,7 +131,7 @@ Confirm policies, catalogue, zones, provider, branding and client account owners
 
 ### Phase 1 — working beta (about 4–6 weeks for one developer)
 
-Auth, catalogue, basket, addresses, delivery windows, one payment provider, order history, admin order board, inventory, notifications and manual dispatch/ETA.
+Auth, catalogue, basket, addresses, delivery windows, one payment provider, order history, admin order board, inventory, notifications, manual dispatch/ETA, assigned-driver updates and partner-store sell-through.
 
 ### Phase 2 — pilot hardening (about 2–3 weeks)
 

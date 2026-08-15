@@ -1,13 +1,15 @@
 # Ugadi Canada
 
-Universal customer and admin MVP foundation for a Toronto/GTA importer bringing an authentic taste of India to local families. One Expo/React Native TypeScript project targets Android, iOS and web.
+Universal commerce and partner-operations MVP foundation for a Toronto/GTA importer bringing an authentic taste of India to local families. One Expo/React Native TypeScript project targets Android, iOS and web.
 
 ## What is included
 
 - A premium responsive visual prototype with editorial product photography, shop, basket, delivery quote, order tracking, account and admin dashboard flows.
+- A private delivery-partner workspace with assigned stops, status progression, exceptions and proof-of-delivery states.
+- A retail-partner workspace for consignment stock, in-store sell-through, transfers, settlement visibility and replenishment.
 - An Ugadi Rewards wallet with points activity, selectable offers and basket redemption calculations.
 - A Stripe-style test checkout with demo card details, local processing simulation and order confirmation.
-- A maintainable frontend architecture with shared design tokens/components and separated customer/admin screens.
+- A maintainable frontend architecture with shared design tokens/components and separated customer, admin and external-partner screens.
 - Multi-category catalogue foundations for fruits, vegetables, spices, pantry items and gifts, with mangoes as the active seasonal campaign.
 - A non-destructive batch inventory, supplier, compliance and campaign migration for Supabase.
 - Generic product/order domain models that can support future products.
@@ -32,12 +34,13 @@ Or use `npm run ios` / `npm run android`. Copy `.env.example` to `.env` only whe
 
 1. Confirm the decisions in `docs/PRODUCT_SPEC.md`.
 2. Create client-owned development/staging Supabase and Expo/EAS projects.
-3. Add Supabase Auth/client setup and apply all three migrations, including `003_rewards.sql`.
+3. Add Supabase Auth/client setup and apply all four migrations through `004_partner_operations.sql`.
 4. Replace demo products/orders with repository queries.
 5. Implement the transactional `create-order` server function.
 6. Implement one payment provider and signed webhook reconciliation.
 7. Add delivery capacity, dispatch and ETA server functions.
-8. Add push/email notifications, tests, monitoring and store builds.
+8. Add partner membership, delivery-event, stock-transfer and sell-through server functions.
+9. Add push/email notifications, tests, monitoring and store builds.
 
 ## Security note
 

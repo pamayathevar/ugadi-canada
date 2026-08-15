@@ -39,6 +39,28 @@ Guest browsing is supported, but authentication is required before payment so an
 
 `support` can work with orders and customers. `admin` also manages catalogue and delivery configuration. `owner` controls staff access and payment configuration.
 
+### Delivery partner
+
+1. Sign in as a member of an approved private delivery company.
+2. View only the route assigned to the current driver, including route window, vehicle and remaining units.
+3. Select the next stop and reveal the minimum required address, contact and hand-off instructions.
+4. Progress a stop through en route, arrived and delivered; report an exception without cancelling the customer order.
+5. Capture a delivery timestamp and, when policy requires it, recipient name/photo proof.
+6. Share current location only during an active route and stop sharing when the route completes.
+
+Drivers cannot browse other routes, change prices/orders or retain customer details after the operational window. Partner managers may monitor only their own company’s routes.
+
+### Retail business partner
+
+1. Sign in as staff of an approved partner business and choose an assigned store location.
+2. View Ugadi consignment stock by product, supplier lot, best-before date and units on hand.
+3. Confirm quantities when receiving an Ugadi stock transfer.
+4. Record in-store sell-through against the appropriate stock lot; shopper payment remains in the store’s POS.
+5. Request replenishment for low stock and track the next inbound transfer.
+6. Review sales, agreed wholesale value and settlement status for that store.
+
+The commercial agreement must decide whether stock is consignment or wholesale purchase. The prototype assumes consignment and keeps wholesale/retail price snapshots on each sale for reconciliation.
+
 ## Delivery model
 
 There are two different promises:
@@ -68,6 +90,9 @@ Beta can begin with manual route assignment and driver location/status updates. 
 - The user-testing build clearly labels simulated Stripe payment states and never transmits entered test-card values.
 - Customers can read only their own orders, addresses and tracking data.
 - Staff actions are role-gated and recorded in status history/audit logs.
+- Delivery partners can read only an assigned route and every status change creates an idempotent event.
+- Retail partners can access only their business locations; a recorded sale atomically reduces the correct lot-level store inventory.
+- Partner transfer receiving cannot create stock or exceed the quantity sent without an Ugadi staff exception workflow.
 - A failed payment leaves no committed inventory reservation after expiry.
 - No payment secret, routing server key or service-role key ships in the app bundle.
 - Reward balances and offer eligibility are recalculated server-side; duplicate webhooks cannot double-earn or double-redeem points.
@@ -82,3 +107,5 @@ Beta can begin with manual route assignment and driver location/status updates. 
 6. Refund/cancellation, substitution, privacy and delivery policies.
 7. Whether drivers are employees/contractors and how they share location.
 8. Rewards launch rules: tier thresholds, point expiry, refund reversals and whether points are earned before or after tax/delivery.
+9. Delivery-partner contracts, driver verification, proof-of-delivery policy, location consent and retention period.
+10. Partner-store commercial model (consignment vs wholesale), price ownership, damaged/expired stock, returns, tax invoicing and settlement schedule.

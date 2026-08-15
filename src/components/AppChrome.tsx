@@ -3,6 +3,7 @@ import { Brand, Button, ScreenFrame } from './ui';
 import { colors, radius, spacing, typography } from '../theme/tokens';
 
 export type CustomerTab = 'shop' | 'orders' | 'account';
+export type PartnerPortal = 'delivery' | 'retail';
 
 const customerTabs: { key: CustomerTab; label: string }[] = [
   { key: 'shop', label: 'The market' },
@@ -16,6 +17,7 @@ export function CustomerHeader({
   cartCount,
   onCart,
   onAdmin,
+  onPartners,
   wide,
 }: {
   activeTab: CustomerTab;
@@ -23,6 +25,7 @@ export function CustomerHeader({
   cartCount: number;
   onCart: () => void;
   onAdmin: () => void;
+  onPartners: () => void;
   wide: boolean;
 }) {
   return (
@@ -31,7 +34,7 @@ export function CustomerHeader({
         <Pressable onPress={() => onTab('shop')}><Brand /></Pressable>
         {wide ? <View style={styles.desktopNav}>{customerTabs.map((item) => <Pressable key={item.key} onPress={() => onTab(item.key)} style={[styles.navLink, activeTab === item.key && styles.navLinkActive]}><Text style={[styles.navText, activeTab === item.key && styles.navTextActive]}>{item.label}</Text></Pressable>)}</View> : null}
         <View style={styles.headerActions}>
-          {wide ? <Pressable onPress={onAdmin}><Text style={styles.adminLink}>Admin preview</Text></Pressable> : null}
+          {wide ? <><Pressable onPress={onPartners}><Text style={styles.adminLink}>Partner portals</Text></Pressable><Pressable onPress={onAdmin}><Text style={styles.adminLink}>Admin preview</Text></Pressable></> : null}
           <Button label={wide ? `Basket · ${cartCount}` : `${cartCount}`} icon="⌑" onPress={onCart} compact variant={cartCount ? 'secondary' : 'ghost'} />
         </View>
       </ScreenFrame>
@@ -52,6 +55,18 @@ export function AdminHeader({ onShop }: { onShop: () => void }) {
   return <View style={styles.adminHeader}><ScreenFrame style={styles.headerInner}><Brand inverse /><View style={styles.adminMode}><Text style={styles.adminModeText}>OPERATIONS CONSOLE</Text></View><Button label="View storefront" onPress={onShop} variant="light" compact /></ScreenFrame></View>;
 }
 
+export function PartnerHeader({ portal, onShop, onSwitch, wide }: { portal: PartnerPortal; onShop: () => void; onSwitch: () => void; wide: boolean }) {
+  const isDelivery = portal === 'delivery';
+  return <View style={styles.adminHeader}><ScreenFrame style={[styles.headerInner, !wide && styles.partnerHeaderMobile]}>
+    <Brand inverse />
+    <View style={styles.adminMode}><Text style={styles.adminModeText}>{isDelivery ? 'DELIVERY PARTNER' : 'RETAIL PARTNER'}</Text></View>
+    <View style={[styles.partnerActions, !wide && styles.partnerActionsMobile]}>
+      <Button label={wide ? `Open ${isDelivery ? 'retail' : 'delivery'} portal` : 'Switch'} onPress={onSwitch} variant="light" compact />
+      <Button label={wide ? 'View storefront' : 'Store'} onPress={onShop} variant="light" compact />
+    </View>
+  </ScreenFrame></View>;
+}
+
 const styles = StyleSheet.create({
   header: { backgroundColor: colors.paper, borderBottomColor: colors.line, borderBottomWidth: 1 },
   adminHeader: { backgroundColor: colors.forest950, borderBottomColor: colors.lime300, borderBottomWidth: 3 },
@@ -62,6 +77,9 @@ const styles = StyleSheet.create({
   navText: { ...typography.small, color: colors.inkSoft, fontWeight: '700' },
   navTextActive: { color: colors.forest900, fontWeight: '900' },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  partnerActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  partnerHeaderMobile: { minHeight: 0, flexWrap: 'wrap', paddingVertical: spacing.sm, gap: spacing.sm },
+  partnerActionsMobile: { width: '100%', justifyContent: 'flex-end' },
   adminLink: { ...typography.small, color: colors.inkSoft, textDecorationLine: 'underline' },
   adminMode: { backgroundColor: '#134F2D', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
   adminModeText: { ...typography.micro, color: colors.lime300 },

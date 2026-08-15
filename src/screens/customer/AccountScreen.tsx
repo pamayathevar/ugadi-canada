@@ -13,6 +13,8 @@ const tierLabels: Record<RewardAccount['tier'], string> = {
 export function AccountScreen({
   wide,
   onAdmin,
+  onDelivery,
+  onRetail,
   rewardAccount,
   rewardOffers,
   selectedReward,
@@ -20,6 +22,8 @@ export function AccountScreen({
 }: {
   wide: boolean;
   onAdmin: () => void;
+  onDelivery: () => void;
+  onRetail: () => void;
   rewardAccount: RewardAccount;
   rewardOffers: RewardOffer[];
   selectedReward?: RewardOffer;
@@ -93,7 +97,7 @@ export function AccountScreen({
         ].map(([icon, title, copy]) => <Pressable style={styles.menuItem} key={title}><View style={styles.menuIcon}><Text style={styles.menuIconText}>{icon}</Text></View><View style={{ flex: 1 }}><Text style={styles.menuTitle}>{title}</Text><Text style={styles.menuCopy}>{copy}</Text></View><Text style={styles.chevron}>›</Text></Pressable>)}
       </View>
     </View>
-    <View style={styles.preview}><View><Text style={styles.previewEyebrow}>PROTOTYPE CONTROL</Text><Text style={styles.previewTitle}>Review the operations experience</Text><Text style={styles.previewCopy}>Switch to the admin preview to explore orders, inventory and delivery management.</Text></View><Button label="Open admin preview" onPress={onAdmin} variant="light" /></View>
+    <View style={styles.preview}><View style={styles.previewCopyBlock}><Text style={styles.previewEyebrow}>PROTOTYPE CONTROL</Text><Text style={styles.previewTitle}>Review every Ugadi role</Text><Text style={styles.previewCopy}>Explore administration, private delivery and partner-store sell-through experiences.</Text></View><View style={styles.previewActions}><Button label="Admin" onPress={onAdmin} variant="light" /><Button label="Delivery partner" onPress={onDelivery} variant="light" /><Button label="Retail partner" onPress={onRetail} variant="light" /></View></View>
   </ScreenFrame>;
 }
 
@@ -170,4 +174,6 @@ const styles = StyleSheet.create({
   previewEyebrow: { ...typography.micro, color: colors.forest950 },
   previewTitle: { ...typography.h3, color: colors.forest950, marginTop: spacing.xs },
   previewCopy: { ...typography.small, color: colors.forest950, marginTop: 2 },
+  previewCopyBlock: { flex: 1, minWidth: 250 },
+  previewActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
 });

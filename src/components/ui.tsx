@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Image, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Image, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { brandImages } from '../data/assets';
 import { colors, contentMaxWidth, radius, shadow, spacing, typography } from '../theme/tokens';
 
@@ -51,7 +51,7 @@ export function Brand({ inverse = false, showTagline = false }: { inverse?: bool
   );
 }
 
-export function ScreenFrame({ children, style }: { children: ReactNode; style?: ViewStyle }) {
+export function ScreenFrame({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   return <View style={[styles.frame, style]}>{children}</View>;
 }
 

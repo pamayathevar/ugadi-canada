@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useRef, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { AdminHeader, CustomerHeader, CustomerTab, MobileNav } from './src/components/AppChrome';
+import { AdminHeader, CustomerHeader, CustomerTab, MobileNav, PartnerHeader } from './src/components/AppChrome';
 import { Brand, ScreenFrame } from './src/components/ui';
 import { CartLine, Order, Product } from './src/domain/commerce';
 import { demoRewardAccount, rewardOffers } from './src/data/rewards';
@@ -11,9 +11,11 @@ import { OrdersScreen } from './src/screens/customer/OrdersScreen';
 import { PaymentScreen } from './src/screens/customer/PaymentScreen';
 import { ShopScreen } from './src/screens/customer/ShopScreen';
 import { AdminDashboard } from './src/screens/admin/AdminDashboard';
+import { DeliveryPartnerDashboard } from './src/screens/partners/DeliveryPartnerDashboard';
+import { RetailPartnerDashboard } from './src/screens/partners/RetailPartnerDashboard';
 import { colors, spacing, typography } from './src/theme/tokens';
 
-type AppMode = 'customer' | 'admin';
+type AppMode = 'customer' | 'admin' | 'delivery' | 'retail';
 
 export default function App() {
   const scrollRef = useRef<ScrollView>(null);
@@ -61,14 +63,20 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar style={mode === 'admin' ? 'light' : 'dark'} />
+      <StatusBar style={mode === 'customer' ? 'dark' : 'light'} />
       {mode === 'admin'
         ? <AdminHeader onShop={() => { setMode('customer'); setTab('shop'); }} />
-        : <CustomerHeader activeTab={tab} onTab={changeTab} cartCount={cartCount} onCart={() => { setPaymentOpen(false); setCartOpen(true); }} onAdmin={() => setMode('admin')} wide={wide} />}
+        : mode === 'delivery' || mode === 'retail'
+          ? <PartnerHeader portal={mode} wide={wide} onSwitch={() => setMode(mode === 'delivery' ? 'retail' : 'delivery')} onShop={() => { setMode('customer'); setTab('shop'); }} />
+          : <CustomerHeader activeTab={tab} onTab={changeTab} cartCount={cartCount} onCart={() => { setPaymentOpen(false); setCartOpen(true); }} onAdmin={() => setMode('admin')} onPartners={() => setMode('delivery')} wide={wide} />}
 
       <ScrollView ref={scrollRef} key={mode === 'admin' ? 'admin' : paymentOpen ? 'payment' : cartOpen ? 'cart' : tab} style={styles.scroll} contentContainerStyle={!wide && mode === 'customer' ? styles.mobileScroll : undefined}>
         {mode === 'admin'
           ? <AdminDashboard wide={wide} />
+          : mode === 'delivery'
+            ? <DeliveryPartnerDashboard wide={wide} />
+            : mode === 'retail'
+              ? <RetailPartnerDashboard wide={wide} />
           : paymentOpen
             ? <PaymentScreen
               lines={cart}
@@ -98,6 +106,8 @@ export default function App() {
                 : <AccountScreen
                   wide={wide}
                   onAdmin={() => setMode('admin')}
+                  onDelivery={() => setMode('delivery')}
+                  onRetail={() => setMode('retail')}
                   rewardAccount={demoRewardAccount}
                   rewardOffers={rewardOffers}
                   selectedReward={selectedReward}
